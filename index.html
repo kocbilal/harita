@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>Geomatic.org Harita</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+    <script src="../js/Yandex.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
+    <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>
+    <link rel="stylesheet" href="https://maps.locationiq.com/v2/libs/leaflet-geocoder/1.9.6/leaflet-geocoder-locationiq.min.css">
+    <script src="https://maps.locationiq.com/v2/libs/leaflet-geocoder/1.9.6/leaflet-geocoder-locationiq.min.js"></script>
+    <script src="js/leaflet.tilelayer.wmts.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+    
+    
+<link href='css/L.Control.Locate.min.css' rel='stylesheet' />
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+		.leaflet-container {
+			height: 100%;
+			width: 100%;
+			max-width: 100%;
+			max-height: 100%;
+		}
+	</style>
+
+    <link rel="stylesheet" href="css/Leaflet.BigImage.css">
+    <script src="js/Leaflet.BigImage.js"></script>	
+    <script src="js/Bing.js"></script> 
+    <script src="js/KML.js"></script>
+    <link rel="stylesheet" href="css/Control.MiniMap.css" />
+	<script src="js/Control.MiniMap.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div id='map'></div>
+
+<script type="text/javascript">
+
+   
+
+    var googler = L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
+    maxZoom: 21,
+    attribution: 'Google'
+    });
+
+
+
+	var mapboxs = L.tileLayer('https://a.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.jpg?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA', {
+    maxZoom: 21,
+    attribution: 'Mapbox'
+    });
+    
+    
+    var bing = new L.BingLayer('AgmakClQiCROUeOpyJaUAx8ljU8ADcJQ0yNWljYKPmOUguQZp2h07_KO6yWgFeEt');
+	
+	var esris = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 17,
+    attribution: 'ESRI',
+    });
+	
+    var googles = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 22,
+    attribution: 'Google',
+    });
+    
+
+    
+    var yandexs = L.tileLayer('https://core-sat.maps.yandex.net/tiles?l=sat&x={x}&y={y}&z={z}&scale=1&lang=ru_RU', {
+    maxZoom: 22,
+    attribution: 'Yandex',
+    });
+    
+    
+    
+    let url = 'https://tucbs-public-api.csb.gov.tr/trk_cbs_ortofoto50cm_wmts';
+                
+                let options = {
+                    tileMatrixSet:'default028mm',
+                    layer:'OCBS_TURKIYE_TORTO_50CM',
+                };
+
+                let wmtsLayer = L.tileLayer.wmts(url, options);
+    
+    
+    
+    var kmlLayer = new L.KML("/KML/2.kml", {async: true});
+                                                              
+         kmlLayer.on("loaded", function(e) { 
+            map.fitBounds(e.target.getBounds());
+         });
+                                    
+        
+    
+    
+		var map = L.map('map', {
+		center: [39, 35],
+		zoom: 7,
+		layers: [mapboxs,kmlLayer],
+		measureControl: true
+	});
+
+	
+	var overlays = {
+	    "Google Etiketleri": googler,
+	    "KML": kmlLayer,
+		
+	};
+	
+	var baseLayers = {
+	    "Mapbox Uydu": mapboxs,
+	    "Esri Uydu": esris,
+	    "Google Uydu": googles,
+	    "Yandex Uydu": yandexs, 
+	    "Bing Uydu": bing,
+	    "TKGM": wmtsLayer,
+				
+
+	};
+	
+	
+	L.control.geocoder('pk.646873e2154644909ea823eaff731876',{
+  bounds: true,
+  position: 'topright',
+  expanded: true,
+  attribution: null,
+  placeholder: 'Ara',
+  fullWidth: null,
+}).addTo(map);
+
+        L.control.layers(baseLayers, overlays).addTo(map);
+	
+	
+    L.control.bigImage({position: 'topright'}).addTo(map);
+	
+	//Plugin magic goes here! Note that you cannot use the same layer object again, as that will confuse the two map controls
+		 var osm2 = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		     minZoom: 0, 
+		     maxZoom: 13
+    });
+		var miniMap = new L.Control.MiniMap(osm2, { toggleDisplay: true }).addTo(map);
+
+
+
+    L.Control.Watermark = L.Control.extend({
+		onAdd: function (map) {
+			var img = L.DomUtil.create('img');
+
+			img.src = 'css/images/logo.png';
+			img.style.width = '150px';
+
+			return img;
+		},
+
+		onRemove: function (map) {
+			// Nothing to do here
+		}
+	});
+
+	L.control.watermark = function (opts) {
+		return new L.Control.Watermark(opts);
+	};
+	
+	L.control.locate().addTo(map);
+	 
+	
+	var watermarkControl = L.control.watermark({position: 'bottomleft'}).addTo(map);
+	
+	
+	// add Leaflet-Geoman controls with some options to the map  
+map.pm.addControls({  
+  position: 'topleft',  
+  drawCircle: true,  
+});  
+map.pm.setLang('tr');
+map.pm.addControls({
+  drawControls: true,
+  editControls: true,
+  optionsControls: false,
+  customControls: true,
+  oneBlock: true,
+});
+
+
+
+
+    
+</script>
+
+
+
+</body>
+</html>
